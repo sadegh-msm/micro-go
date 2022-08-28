@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"github.com/labstack/echo/v4"
 	"net/http"
 )
@@ -22,7 +21,5 @@ func (app *Config) Broker(c echo.Context) error {
 		Message: "Broker is active",
 	}
 
-	out, _ := json.MarshalIndent(res, "", "\t")
-
-	return c.JSON(http.StatusAccepted, out)
+	return c.JSON(http.StatusAccepted, res)
 }
