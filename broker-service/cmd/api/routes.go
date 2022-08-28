@@ -19,6 +19,7 @@ func (app *Config) routes() http.Handler {
 	}))
 
 	e.GET("/gigachad", isAlive)
+	e.POST("/", app.Broker)
 
 	return e
 }

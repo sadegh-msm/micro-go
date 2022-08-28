@@ -16,12 +16,13 @@ func isAlive(c echo.Context) error {
 	return c.JSON(http.StatusOK, "still alive")
 }
 
-func (app *Config) Broker(w http.ResponseWriter, r *http.Request) {
+func (app *Config) Broker(c echo.Context) error {
 	res := response{
 		Error:   false,
 		Message: "Broker is active",
 	}
 
 	out, _ := json.MarshalIndent(res, "", "\t")
-	
+
+	return c.JSON(http.StatusAccepted, out)
 }
