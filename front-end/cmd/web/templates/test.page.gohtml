@@ -38,18 +38,18 @@
         let received = document.getElementById("received");
 
         brokerBtn.addEventListener("click", function() {
+
             const body = {
                 method: 'POST',
             }
 
-            fetch("http:\/\/localhost:8080", body).then((response) => response.json()).then((data) =>{
-                sent.innerHTML= "empty post request";
-
+            fetch("http:\/\/localhost:8080", body).then((response) => response.json()).then((data) => {
+                sent.innerHTML ="empty post request";
                 received.innerHTML = JSON.stringify(data, undefined, 4);
                 if (data.error) {
                     console.log(data.message);
                 } else {
-                    output.innerHTML += `<br><strong>response from broker service</strong>: ${data.message}`;
+                    output.innerHTML += `<br><strong>Response from broker service</strong>: ${data.message}`;
                 }
             })
         })

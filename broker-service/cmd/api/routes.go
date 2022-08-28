@@ -1,24 +1,26 @@
 package main
 
 import (
-	"github.com/labstack/echo/v4"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 	"net/http"
 )
 
 func (app *Config) routes() http.Handler {
-	e := echo.New()
+	c := chi.NewRouter()
 
-	//e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-	//	AllowOrigins:     []string{"https://*", "http://*"},
-	//	AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-	//	AllowHeaders:     []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
-	//	ExposeHeaders:    []string{"Link"},
-	//	AllowCredentials: true,
-	//	MaxAge:           300,
-	//}))
+	// specify who is allowed to connect
+	c.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"https://*", "http://*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: true,
+		MaxAge:           300,
+	}))
 
-	e.GET("/gigachad", isAlive)
-	e.POST("/", app.Broker)
+	c.Get("/gigachad", isAlive)
+	c.Post("/", app.Broker)
 
-	return e
+	return c
 }
