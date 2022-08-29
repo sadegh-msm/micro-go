@@ -21,6 +21,6 @@ func (app *Config) routes() http.Handler {
 
 	c.Get("/gigachad", app.isAlive)
 	c.Post("/", app.Broker)
-
+	c.Post("/handle", app.HandleAll)
 	return c
 }
