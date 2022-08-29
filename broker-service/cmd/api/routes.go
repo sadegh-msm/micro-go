@@ -19,7 +19,7 @@ func (app *Config) routes() http.Handler {
 		MaxAge:           300,
 	}))
 
-	c.Get("/gigachad", isAlive)
+	c.Get("/gigachad", app.isAlive)
 	c.Post("/", app.Broker)
 
 	return c
