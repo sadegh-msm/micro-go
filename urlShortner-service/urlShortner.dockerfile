@@ -2,19 +2,19 @@ FROM golang:1.18-alpine as builder
 
 RUN mkdir /app
 
-COPY . /app
+COPY cmd /app
 
 WORKDIR /app
 
-RUN CGO_ENABLED=0 go build -o loggerApp ./cmd/api
+RUN CGO_ENABLED=0 go build -o shortenApp ./cmd/api
 
-RUN chmod +x /app/loggerApp
+RUN chmod +x /app/shortenApp
 
 # just build a image and run the code and after it copy the executable to a minimal image
 FROM alpine:latest
 
 RUN mkdir /app
 
-COPY --from=builder /app/loggerApp /app
+COPY --from=builder /app/shortenApp /app
 
-CMD ["/app/loggerApp"]
+CMD ["/app/shortenApp"]

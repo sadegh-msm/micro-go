@@ -34,6 +34,13 @@ services:
     environment:
       DSN: "host=postgres port=5432 user=postgres password=password dbname=users sslmode=disable timezone=UTC connect_timeout=5"
 
+  urlShortner-service:
+    build:
+      context: ./../urlShortner-service
+      dockerfile: ./../urlShortner-service/urlShortner.dockerfile
+    restart: always
+    ports:
+      - "8082:80"
 
   postgres:
     image: 'postgres:14.0'
@@ -59,5 +66,16 @@ services:
       MONGO_INITDB_DATABASE: logs
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - ./data-db/mongo/:/data/db
+
+  redis:
+    image: 'redis:alpine'
+    ports:
+      - "6379:6379"
+    restart: always
+    environment:
+      DB_ADDR: redis:6379
+      DB_PASS: pass
     volumes:
       - ./data-db/mongo/:/data/db
