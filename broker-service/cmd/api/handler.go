@@ -5,12 +5,14 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"time"
 )
 
 type BrokerRequest struct {
-	Action string      `json:"action"`
-	Auth   AuthPayload `json:"auth,omitempty"`
-	Log    LogPayload  `json:"log,omitempty"`
+	Action   string          `json:"action"`
+	Auth     AuthPayload     `json:"auth,omitempty"`
+	Log      LogPayload      `json:"log,omitempty"`
+	Shortner shortnerPayload `json:"shortner,omitempty"`
 }
 
 type AuthPayload struct {
@@ -21,6 +23,12 @@ type AuthPayload struct {
 type LogPayload struct {
 	Name string `json:"name"`
 	Data string `json:"data"`
+}
+
+type shortnerPayload struct {
+	URL         string        `json:"url"`
+	CustomShort string        `json:"customShort"`
+	ExpireTime  time.Duration `json:"expireTime"`
 }
 
 func (app *Config) isAlive(w http.ResponseWriter, r *http.Request) {
@@ -55,6 +63,9 @@ func (app *Config) HandleAll(w http.ResponseWriter, r *http.Request) {
 
 	case "log":
 		app.LogItem(w, req.Log)
+
+	case "shortner":
+		app.shortnerURL(w, req.Shortner)
 
 	default:
 		app.errorJson(w, errors.New("invalid action"), http.StatusBadRequest)
@@ -133,7 +144,39 @@ func (app *Config) LogItem(w http.ResponseWriter, data LogPayload) {
 
 	payload := response{
 		Error:   false,
-		Message: "logged",
+		Message: "logged data",
+	}
+	app.writeJson(w, http.StatusAccepted, payload)
+}
+
+func (app *Config) shortnerURL(w http.ResponseWriter, data shortnerPayload) {
+	jsonData, _ := json.MarshalIndent(data, "", "\t")
+
+	req, err := http.NewRequest("POST", "http://urlshortner-service/api/v1", bytes.NewBuffer(jsonData))
+	if err != nil {
+		app.errorJson(w, err)
+		return
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	res, err := client.Do(req)
+	if err != nil {
+		app.errorJson(w, err)
+		return
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		app.errorJson(w, err)
+		return
+	}
+
+	payload := response{
+		Error:   false,
+		Message: "url shortend",
+		Data:    res,
 	}
 	app.writeJson(w, http.StatusAccepted, payload)
 }

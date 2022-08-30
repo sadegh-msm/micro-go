@@ -34,10 +34,10 @@ services:
     environment:
       DSN: "host=postgres port=5432 user=postgres password=password dbname=users sslmode=disable timezone=UTC connect_timeout=5"
 
-  urlShortner-service:
+  urlshortner-service:
     build:
-      context: ./../urlShortner-service
-      dockerfile: ./../urlShortner-service/urlShortner.dockerfile
+      context: ./../urlshortner-service
+      dockerfile: ./../urlshortner-service/urlshoertner.dockerfile
     restart: always
     ports:
       - "8082:80"
