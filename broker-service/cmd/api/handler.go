@@ -2,7 +2,6 @@ package main
 
 import (
 	"broker/cmd/api/logs"
-	"broker/event"
 	"bytes"
 	"context"
 	"encoding/json"
@@ -184,41 +183,6 @@ func (app *Config) shortnerURL(w http.ResponseWriter, data shortnerPayload) {
 		Data:    res,
 	}
 	app.writeJson(w, http.StatusAccepted, payload)
-}
-
-func (app *Config) logEventWithRabbitmq(w http.ResponseWriter, l LogPayload) {
-	err := app.pushToQueue(l.Name, l.Data)
-	if err != nil {
-		app.errorJson(w, err)
-		return
-	}
-
-	payload := response{
-		Error:   false,
-		Message: "logged by rabbitmq",
-	}
-
-	app.writeJson(w, http.StatusAccepted, payload)
-}
-
-func (app *Config) pushToQueue(name, message string) error {
-	emitter, err := event.NewEventEmitter(app.Rabbit)
-	if err != nil {
-		return err
-	}
-
-	payload := LogPayload{
-		Name: name,
-		Data: message,
-	}
-
-	j, _ := json.MarshalIndent(&payload, "", "\t")
-	err = emitter.Push(string(j), "log.INFO")
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (app *Config) logEventWithGrpc(w http.ResponseWriter, r *http.Request) {
