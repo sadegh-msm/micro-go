@@ -22,5 +22,6 @@ func (app *Config) routes() http.Handler {
 	c.Get("/gigachad", app.isAlive)
 	c.Post("/", app.Broker)
 	c.Post("/handle", app.HandleAll)
+	c.Post("/log-grpc", app.logEventWithGrpc)
 	return c
 }

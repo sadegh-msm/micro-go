@@ -37,6 +37,7 @@ func (consumer *Consumer) setup() error {
 	if err != nil {
 		return err
 	}
+
 	return declareExchange(channel)
 }
 
@@ -88,8 +89,6 @@ func handlePayload(payload payload) {
 		if err != nil {
 			log.Println(err)
 		}
-
-	case "auth":
 
 	default:
 		err := logEvent(payload)

@@ -34,15 +34,6 @@ services:
     environment:
       DSN: "host=postgres port=5432 user=postgres password=password dbname=users sslmode=disable timezone=UTC connect_timeout=5"
 
-  listener_service:
-    build:
-      context: ./../listener-service
-      dockerfile: ./../listener-service/listener.dockerfile
-    restart: always
-    deploy:
-      mode: replicated
-      replicas: 1
-
   urlshortner-service:
     build:
       context: ./../urlshortner-service
@@ -50,6 +41,14 @@ services:
     restart: always
     ports:
       - "8082:80"
+
+  listener-service:
+    build:
+      context: ./../listener-service
+      dockerfile: ./../listener-service/listener.dockerfile
+    deploy:
+      mode: replicated
+      replicas: 1
 
   postgres:
     image: 'postgres:14.0'

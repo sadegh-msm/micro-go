@@ -10,7 +10,7 @@ var Context = context.Background()
 
 func CreateClients(No int) *redis.Client {
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     "redis:6379",
+		Addr:     "redis://redis:6379",
 		Password: "pass",
 		DB:       No,
 	})
@@ -25,7 +25,7 @@ func EnforceHTTP(url string) string {
 }
 
 func RemoveDomainError(url string) bool {
-	if url == "urlshortner-service" {
+	if url == "urlshortner-service://urlshortner-service:80" {
 		return false
 	}
 
@@ -34,7 +34,7 @@ func RemoveDomainError(url string) bool {
 	newURL = strings.Replace(newURL, "www.", "", 1)
 	newURL = strings.Split(newURL, "/")[0]
 
-	if newURL == "urlshortner-service" {
+	if newURL == "urlshortner-service://urlshortner-service:80" {
 		return false
 	}
 

@@ -25,9 +25,9 @@ func main() {
 	}
 
 	err = consumer.Listen([]string{
-		"log_INFO",
-		"log_WARNING",
-		"log_ERROR",
+		"log.INFO",
+		"log.WARNING",
+		"log.ERROR",
 	})
 	if err != nil {
 		log.Println(err)
@@ -41,7 +41,7 @@ func connectRabbitmq() (*amqp.Connection, error) {
 	)
 
 	for {
-		conn, err := amqp.Dial("ampq://guest:guest@rabbitmq")
+		conn, err := amqp.Dial("amqp://guest:guest@rabbitmq")
 		if err != nil {
 			fmt.Println("can not connect to rabbitmq")
 			count++
