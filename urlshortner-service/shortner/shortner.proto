@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package shortner;
+
+option go_package = "/shortner";
+
+message shortner {
+  string url = 1;
+  string custom = 2;
+  int32 expireTime = 3;
+}
+
+message shortnerRequest {
+  shortner shortnerEntry = 1;
+}
+
+message shortnerResponse {
+  string result = 1;
+}
+
+service shortnerService {
+  rpc ShortenUrl(shortnerRequest) returns (shortnerResponse);
+}

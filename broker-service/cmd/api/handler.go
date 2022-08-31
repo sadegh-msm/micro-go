@@ -10,7 +10,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"net/http"
-	"net/rpc"
 	"time"
 )
 
@@ -68,7 +67,7 @@ func (app *Config) HandleAll(w http.ResponseWriter, r *http.Request) {
 		app.Authenticate(w, req.Auth)
 
 	case "log":
-		app.logEventWithRPC(w, req.Log)
+		app.logEventWithGrpc(w, r)
 
 	case "shortner":
 		app.shortnerURL(w, req.Shortner)
@@ -220,38 +219,6 @@ func (app *Config) pushToQueue(name, message string) error {
 	}
 
 	return nil
-}
-
-type RPCPayload struct {
-	Name string
-	Data string
-}
-
-func (app *Config) logEventWithRPC(w http.ResponseWriter, l LogPayload) {
-	client, err := rpc.Dial("tcp", "logger-service:5001")
-	if err != nil {
-		app.errorJson(w, err)
-		return
-	}
-
-	payload := RPCPayload{
-		Name: l.Name,
-		Data: l.Data,
-	}
-
-	var res string
-	err = client.Call("RPCServer.LogInfo", payload, &res)
-	if err != nil {
-		app.errorJson(w, err)
-		return
-	}
-
-	response := response{
-		Error:   false,
-		Message: res,
-	}
-
-	app.writeJson(w, http.StatusAccepted, response)
 }
 
 func (app *Config) logEventWithGrpc(w http.ResponseWriter, r *http.Request) {
