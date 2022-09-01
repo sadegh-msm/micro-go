@@ -9,11 +9,11 @@ if [ $service = "auth" ] ; then
 
 elif [ $service = "log" ]; then
   cd ./../logger-service/logs
-  . ./log.sh
+  . ./logs.sh
   cd ./../../project
 
 elif [ $service = "shortner" ]; then
-  cd ./../urlshortner-service/
+  cd ./../urlshortner-service/shortner
   . ./shortner.sh
   cd ./../../project
 fi

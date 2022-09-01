@@ -6,21 +6,10 @@ import (
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"net/http"
+	"shortnerApp/data"
 	"strconv"
 	"time"
 )
-
-type request struct {
-	URL         string        `json:"url"`
-	CustomShort string        `json:"customShort"`
-	ExpireTime  time.Duration `json:"expireTime"`
-}
-
-type firstRequest struct {
-	URL         string `json:"url"`
-	CustomShort string `json:"customShort"`
-	ExpireTime  int64  `json:"expireTime"`
-}
 
 type response struct {
 	URL            string        `json:"url"`
@@ -30,44 +19,33 @@ type response struct {
 	XRestLimitRest time.Duration `json:"xRestLimitRest"`
 }
 
-func ShortenURL(c echo.Context) error {
-	firstBody := new(firstRequest)
-	body := new(request)
-
-	if err := c.Bind(&firstBody); err != nil {
-		return c.JSON(http.StatusBadRequest, echo.Map{"error": "cannot pars JSON"})
-	}
-
-	body.URL = firstBody.URL
-	body.CustomShort = firstBody.CustomShort
-	body.ExpireTime = time.Duration(firstBody.ExpireTime)
-
-	r2 := CreateClients(1)
+func ShortenURL(body data.Request, realIp string) (int, interface{}) {
+	r2 := data.CreateClients(1)
 	defer r2.Close()
-	val, err := r2.Get(Context, c.RealIP()).Result()
+	val, err := r2.Get(data.Context, realIp).Result()
 
 	if err == redis.Nil {
-		_ = r2.Set(Context, c.RealIP(), 10, 30*time.Minute).Err()
+		_ = r2.Set(data.Context, realIp, 10, 30*time.Minute).Err()
 	} else {
-		val, _ = r2.Get(Context, c.RealIP()).Result()
+		val, _ = r2.Get(data.Context, realIp).Result()
 		valInt, _ := strconv.Atoi(val)
 		if valInt <= 0 {
-			limit, _ := r2.TTL(Context, c.RealIP()).Result()
+			limit, _ := r2.TTL(data.Context, realIp).Result()
 
-			return c.JSON(http.StatusServiceUnavailable, echo.Map{
+			return 503, echo.Map{
 				"error":           "rate limit exceeded",
 				"limit_time_left": limit,
-			})
+			}
 
 		}
 	}
 
 	if !govalidator.IsURL(body.URL) {
-		return c.JSON(http.StatusBadRequest, echo.Map{"error": "URL is not correct"})
+		return 400, echo.Map{"error": "URL is not correct"}
 	}
 
 	if !RemoveDomainError(body.URL) {
-		return c.JSON(http.StatusServiceUnavailable, echo.Map{"error": "error in finding domain"})
+		return 503, echo.Map{"error": "error in finding domain"}
 	}
 	body.URL = EnforceHTTP(body.URL)
 
@@ -79,26 +57,26 @@ func ShortenURL(c echo.Context) error {
 		id = body.CustomShort
 	}
 
-	rdb := CreateClients(0)
+	rdb := data.CreateClients(0)
 	defer rdb.Close()
 
-	val, _ = rdb.Get(Context, id).Result()
+	val, _ = rdb.Get(data.Context, id).Result()
 
 	if val != "" {
-		return c.JSON(http.StatusForbidden, echo.Map{
+		return 403, echo.Map{
 			"error": "url is already used",
-		})
+		}
 	}
 
 	if body.ExpireTime == 0 {
 		body.ExpireTime = 24
 	}
 
-	er := rdb.Set(Context, id, body.URL, body.ExpireTime*60*time.Minute)
+	er := rdb.Set(data.Context, id, body.URL, body.ExpireTime*60*time.Minute)
 	if er != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{
+		return 500, echo.Map{
 			"error": "unable to connect to server",
-		})
+		}
 	}
 
 	resp := response{
@@ -109,15 +87,42 @@ func ShortenURL(c echo.Context) error {
 		XRestLimitRest: 30,
 	}
 
-	r2.Decr(Context, c.RealIP())
+	r2.Decr(data.Context, realIp)
 
-	val, _ = r2.Get(Context, c.RealIP()).Result()
+	val, _ = r2.Get(data.Context, realIp).Result()
 	resp.XRAteRemain, _ = strconv.Atoi(val)
 
-	ttl, _ := r2.TTL(Context, c.RealIP()).Result()
+	ttl, _ := r2.TTL(data.Context, realIp).Result()
 	resp.XRestLimitRest = ttl / time.Nanosecond / time.Minute
 
 	resp.CustomShort = "urlshortner-service" + "/" + id
 
-	return c.JSON(http.StatusOK, resp)
+	return 200, resp
+}
+
+func ShortenUrlEcho(c echo.Context) error {
+	body := data.Request{}
+
+	if err := c.Bind(body); err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{"error": "cannot pars JSON"})
+	}
+
+	status, res := ShortenURL(body, c.RealIP())
+
+	switch status {
+	case 500:
+		return c.JSON(status, res)
+
+	case 503:
+		return c.JSON(status, res)
+
+	case 400:
+		return c.JSON(status, res)
+
+	case 403:
+		return c.JSON(status, res)
+
+	}
+
+	return c.JSON(status, res)
 }

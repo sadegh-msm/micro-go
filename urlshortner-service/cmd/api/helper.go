@@ -1,21 +1,8 @@
 package main
 
 import (
-	"context"
-	"github.com/go-redis/redis/v8"
 	"strings"
 )
-
-var Context = context.Background()
-
-func CreateClients(No int) *redis.Client {
-	rdb := redis.NewClient(&redis.Options{
-		Addr:     "redis://redis:6379",
-		Password: "pass",
-		DB:       No,
-	})
-	return rdb
-}
 
 func EnforceHTTP(url string) string {
 	if url[:4] != "http" {
@@ -25,7 +12,7 @@ func EnforceHTTP(url string) string {
 }
 
 func RemoveDomainError(url string) bool {
-	if url == "urlshortner-service://urlshortner-service:80" {
+	if url == "urlshortner-service:80" {
 		return false
 	}
 
@@ -34,7 +21,7 @@ func RemoveDomainError(url string) bool {
 	newURL = strings.Replace(newURL, "www.", "", 1)
 	newURL = strings.Split(newURL, "/")[0]
 
-	if newURL == "urlshortner-service://urlshortner-service:80" {
+	if newURL == "urlshortner-service:80" {
 		return false
 	}
 

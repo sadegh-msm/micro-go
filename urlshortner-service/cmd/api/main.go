@@ -19,7 +19,7 @@ func main() {
 	e.Use(middleware.Logger())
 
 	e.GET("/:url", ResolveURL)
-	e.POST("/api/v1", ShortenURL)
+	e.POST("/api/v1", ShortenUrlEcho)
 
 	log.Fatal(e.Start(":80"))
 }
