@@ -1,6 +1,7 @@
 package main
 
 import (
+	"broker/cmd/api/auth"
 	"broker/cmd/api/logs"
 	"bytes"
 	"context"
@@ -63,7 +64,7 @@ func (app *Config) HandleAll(w http.ResponseWriter, r *http.Request) {
 
 	switch req.Action {
 	case "auth":
-		app.Authenticate(w, req.Auth)
+		app.authenticateWithGrpc(w, r)
 
 	case "log":
 		app.logEventWithGrpc(w, r)
@@ -219,6 +220,45 @@ func (app *Config) logEventWithGrpc(w http.ResponseWriter, r *http.Request) {
 	res := response{
 		Error:   false,
 		Message: "logged by grpc",
+	}
+
+	app.writeJson(w, http.StatusAccepted, res)
+}
+
+func (app *Config) authenticateWithGrpc(w http.ResponseWriter, r *http.Request) {
+	var req BrokerRequest
+
+	err := app.readJson(w, r, &req)
+	if err != nil {
+		app.errorJson(w, err)
+		return
+	}
+
+	conn, err := grpc.Dial("authentication-service:50001", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
+	if err != nil {
+		app.errorJson(w, err)
+		return
+	}
+	defer conn.Close()
+
+	c := auth.NewAuthServiceClient(conn)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
+	_, err = c.Authenticate(ctx, &auth.AuthRequest{
+		AuthEntry: &auth.Authenticate{
+			Email:    req.Auth.Email,
+			Password: req.Auth.Password,
+		},
+	})
+	if err != nil {
+		app.errorJson(w, err)
+		return
+	}
+
+	res := response{
+		Error:   false,
+		Message: "authenticated by grpc",
 	}
 
 	app.writeJson(w, http.StatusAccepted, res)

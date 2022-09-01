@@ -35,6 +35,8 @@ func main() {
 		DB:     conn,
 		Models: data.New(conn),
 	}
+	go app.grpcListen()
+
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%s", webPort),
 		Handler: app.routes(),

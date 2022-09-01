@@ -6,6 +6,8 @@ import (
 	"log"
 )
 
+var grpcPort = "50001"
+
 func main() {
 	e := echo.New()
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
