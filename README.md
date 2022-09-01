@@ -1,11 +1,11 @@
 # micro-go
-> microservice in golang 
+> micro-services in golang 
 
 ## introduction
  Here is a mini project most for self-learning and working with `micro-services` and working with other technology's.
 
  this project has 5 different services that uses [gRPC](https://github.com/grpc/grpc-go) for more efficient and faster connections
- (first I use the http/rest and after it I wanted faster service, so I add gRPC so the http/rest handlers and endpoints are available to).
+ (first I use the http/rest and after it I wanted faster service, so I add gRPC so the http/rest handlers and endpoints are available too).
  I also used [rabbitMQ](https://www.rabbitmq.com) for message queue in case servers has more request that they can handle.
  
 ## up and running 
