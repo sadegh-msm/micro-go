@@ -44,6 +44,8 @@ func (app *Config) isAlive(w http.ResponseWriter, r *http.Request) {
 	_ = app.writeJson(w, http.StatusOK, res)
 }
 
+// Broker all services will connect to broker and communicate with each other with broker service
+// this service will take BrokerRequest and decide foe all request where to go
 func (app *Config) Broker(w http.ResponseWriter, r *http.Request) {
 	res := response{
 		Error:   false,
@@ -77,6 +79,7 @@ func (app *Config) HandleAll(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Authenticate Authenticats by http/rest
 func (app *Config) Authenticate(w http.ResponseWriter, data AuthPayload) {
 	jsonData, _ := json.MarshalIndent(data, "", "\t")
 
@@ -123,6 +126,7 @@ func (app *Config) Authenticate(w http.ResponseWriter, data AuthPayload) {
 	app.writeJson(w, http.StatusAccepted, payload)
 }
 
+// LogItem logs items by http/rest
 func (app *Config) LogItem(w http.ResponseWriter, data LogPayload) {
 	jsonData, _ := json.MarshalIndent(data, "", "\t")
 
@@ -186,6 +190,7 @@ func (app *Config) shortnerURL(w http.ResponseWriter, data shortnerPayload) {
 	app.writeJson(w, http.StatusAccepted, payload)
 }
 
+// logs items by Grpc and
 func (app *Config) logEventWithGrpc(w http.ResponseWriter, r *http.Request) {
 	var req BrokerRequest
 

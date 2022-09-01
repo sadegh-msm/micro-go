@@ -18,6 +18,7 @@ type entry struct {
 	Data string `json:"data"`
 }
 
+// checks if server is running or not before sending request or getting response
 func (app *Config) isAlive(w http.ResponseWriter, r *http.Request) {
 	res := response{
 		Message: "im still alive",
@@ -26,6 +27,7 @@ func (app *Config) isAlive(w http.ResponseWriter, r *http.Request) {
 	_ = app.writeJson(w, http.StatusOK, res)
 }
 
+// authenticate the user by simple http and rest request
 func (app *Config) authenticate(w http.ResponseWriter, r *http.Request) {
 	req := request{}
 
@@ -63,6 +65,7 @@ func (app *Config) authenticate(w http.ResponseWriter, r *http.Request) {
 	app.writeJson(w, http.StatusAccepted, res)
 }
 
+// loggs for every person that authenticates and saves it in database
 func (app *Config) logRequest(name, data string) error {
 	entry := entry{
 		Name: name,

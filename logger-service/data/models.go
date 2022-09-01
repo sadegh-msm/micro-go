@@ -24,6 +24,10 @@ type Models struct {
 	LogEntry LogEntry
 }
 
+// writing some of most used functions for working with mongo for ease if using it
+// FindAll will query in database for all possible answers
+// DropCollection will delete a collection from database
+
 func New(mongo *mongo.Client) Models {
 	client = mongo
 

@@ -23,5 +23,7 @@ func (app *Config) routes() http.Handler {
 	c.Post("/", app.Broker)
 	c.Post("/handle", app.HandleAll)
 	c.Post("/log-grpc", app.logEventWithGrpc)
+	c.Post("auth-grpc", app.authenticateWithGrpc)
+
 	return c
 }

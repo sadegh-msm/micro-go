@@ -13,6 +13,9 @@ type response struct {
 	Data    interface{} `json:"data,omitempty"`
 }
 
+// creating function for ease of working with json:
+// reading a json, writing a json and pass an error with json
+
 func (app *Config) readJson(w http.ResponseWriter, r *http.Request, data interface{}) error {
 	maxSize := 1048576 //one megabyte
 

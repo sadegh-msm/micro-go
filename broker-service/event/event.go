@@ -4,6 +4,8 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
+// creating function for less typing while using them
+
 func declareExchange(channel *amqp.Channel) error {
 	return channel.ExchangeDeclare("logs_topic", "topic", true, false, false, false, nil)
 }

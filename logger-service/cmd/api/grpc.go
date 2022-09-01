@@ -15,6 +15,7 @@ type logServer struct {
 	Model data.Models
 }
 
+// WriteLog write log with grpc
 func (ls *logServer) WriteLog(ctx context.Context, req *logs.LogRequest) (*logs.LogResponse, error) {
 	input := req.GetLogEntry()
 
@@ -23,6 +24,8 @@ func (ls *logServer) WriteLog(ctx context.Context, req *logs.LogRequest) (*logs.
 		Data: input.Data,
 	}
 
+	// inserting data to database by Insert
+	// if it fails by any reasons returns failed and exit the function
 	err := ls.Model.LogEntry.Insert(logEntry)
 	if err != nil {
 		res := &logs.LogResponse{
@@ -37,6 +40,7 @@ func (ls *logServer) WriteLog(ctx context.Context, req *logs.LogRequest) (*logs.
 	return res, nil
 }
 
+// listening for grpc connections
 func (app *Config) grpcListen() {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", grpcPort))
 	if err != nil {

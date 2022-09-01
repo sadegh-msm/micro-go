@@ -19,6 +19,7 @@ type payload struct {
 	Data string `json:"data"`
 }
 
+// NewConsumer creating new consumer for rabbitmq queue
 func NewConsumer(conn *amqp.Connection) (Consumer, error) {
 	consumer := Consumer{
 		Connection: conn,
@@ -40,6 +41,7 @@ func (consumer *Consumer) setup() error {
 	return declareExchange(channel)
 }
 
+// Listen for rabbitmq connections
 func (consumer *Consumer) Listen(topics []string) error {
 	ch, err := consumer.Connection.Channel()
 	if err != nil {
@@ -99,6 +101,7 @@ func handlePayload(payload payload) {
 	}
 }
 
+// log event by making a new queue and using that for logging
 func logEvent(entry payload) error {
 	jsonData, _ := json.MarshalIndent(entry, "", "\t")
 
